@@ -1,5 +1,7 @@
+import WeldCalculator from "./components/weld/WeldCalculator";
+
 function App() {
-  return <h1>Hello World!</h1>
+  return <WeldCalculator />;
 }
 
-export default App
+export default App;
