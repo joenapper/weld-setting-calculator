@@ -1,11 +1,9 @@
 // WeldInputs.tsx
-// The weld-parameter input panel: material, joint, position, wire and thickness.
-// State lives in the parent so the live preview and results can read it too;
-// this component just renders the controls and reports changes back up.
+// The weld-parameter input panel: reads the shared settings from context and
+// renders the material, joint, position, wire and thickness controls.
 
-import type { Dispatch, SetStateAction } from "react";
 import { JOINT_MAX, ROLES } from "@/lib/weldConfig";
-import type { Joint, Material, Position, Units, Wire } from "@/types/weld";
+import { useWeldSettingsContext } from "@/context/WeldSettingsContext";
 import SegmentedControl from "./SegmentedControl";
 import {
   JOINT_OPTS,
@@ -16,39 +14,24 @@ import {
 } from "./segmentOptions";
 import ThicknessControl from "./ThicknessControl";
 
-interface WeldInputsProps {
-  units: Units;
-  setUnits: Dispatch<SetStateAction<Units>>;
-  material: Material;
-  setMaterial: Dispatch<SetStateAction<Material>>;
-  joint: Joint;
-  onJoint: (joint: Joint) => void;
-  position: Position;
-  setPosition: Dispatch<SetStateAction<Position>>;
-  wire: Wire;
-  setWire: Dispatch<SetStateAction<Wire>>;
-  a: number;
-  setA: Dispatch<SetStateAction<number>>;
-  b: number;
-  setB: Dispatch<SetStateAction<number>>;
-}
+export default function WeldInputs() {
+  const {
+    units,
+    setUnits,
+    material,
+    setMaterial,
+    joint,
+    onJoint,
+    position,
+    setPosition,
+    wire,
+    setWire,
+    a,
+    setA,
+    b,
+    setB,
+  } = useWeldSettingsContext();
 
-export default function WeldInputs({
-  units,
-  setUnits,
-  material,
-  setMaterial,
-  joint,
-  onJoint,
-  position,
-  setPosition,
-  wire,
-  setWire,
-  a,
-  setA,
-  b,
-  setB,
-}: WeldInputsProps) {
   const maxMM = JOINT_MAX[joint];
   const [roleA, roleB] = ROLES[joint];
 

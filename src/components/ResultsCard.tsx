@@ -3,14 +3,10 @@
 // pills, and any advisory flags returned by the engine.
 
 import { fmtThickness } from "@/lib/weldConfig";
-import type { MigResult, Units } from "@/types/weld";
+import { useWeldSettingsContext } from "@/context/WeldSettingsContext";
 
-interface ResultsCardProps {
-  result: MigResult;
-  units: Units;
-}
-
-export default function ResultsCard({ result, units }: ResultsCardProps) {
+export default function ResultsCard() {
+  const { result, units } = useWeldSettingsContext();
   // when the config isn't recommended the engine returns "—" for the numbers
   return (
     <div className="out" role="region" aria-label="Recommended starting settings">

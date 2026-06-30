@@ -48,3 +48,5 @@ export function useWeldSettings() {
     result,
   };
 }
+
+export type WeldSettings = ReturnType<typeof useWeldSettings>;

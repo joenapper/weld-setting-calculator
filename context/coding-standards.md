@@ -20,6 +20,7 @@
 - Types: `src/types/[feature].ts`
 - Lib/Utils: `src/lib/[utility].ts`
 - Hooks: `src/hooks/use[hook].ts` (React-specific, stateful logic — kept separate from pure utils)
+- Context: `src/context/[Name]Context.ts` (context object + consumer hook) and `src/context/[Name]Provider.tsx` (the provider component) — split so the provider file exports only a component (keeps Fast Refresh clean)
 
 ## Naming
 

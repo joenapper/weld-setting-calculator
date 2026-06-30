@@ -1,8 +1,8 @@
 // JointSection.tsx
-// Live weld cross-section. Driven entirely by props; runs a requestAnimationFrame
-// tween so plate thicknesses ease toward their target sizes. The SVG <g> is
-// written imperatively (innerHTML from the pure string builders) to avoid React
-// reconciling 60fps of generated nodes.
+// Live weld cross-section. Driven by the shared settings context; runs a
+// requestAnimationFrame tween so plate thicknesses ease toward their target
+// sizes. The SVG <g> is written imperatively (innerHTML from the pure string
+// builders) to avoid React reconciling 60fps of generated nodes.
 
 import { useEffect, useRef } from "react";
 import {
@@ -12,7 +12,8 @@ import {
   toPx,
   VERTICAL_BUILDERS,
 } from "@/lib/jointGeometry";
-import type { Joint, Material, Position, Units } from "@/types/weld";
+import { useWeldSettingsContext } from "@/context/WeldSettingsContext";
+import type { Position } from "@/types/weld";
 
 const CY = 170; // viewBox centre-Y (480 × 340); the drawing rotates about (CX, CY)
 
@@ -24,23 +25,8 @@ const POSITION_ANGLE: Record<Position, number> = {
   overhead: 180, // plates upside down
 };
 
-interface JointSectionProps {
-  joint: Joint;
-  units: Units;
-  position: Position;
-  material: Material;
-  a: number; // member A thickness, mm
-  b: number; // member B thickness, mm
-}
-
-export default function JointSection({
-  joint,
-  units,
-  position,
-  material,
-  a,
-  b,
-}: JointSectionProps) {
+export default function JointSection() {
+  const { joint, units, position, material, a, b } = useWeldSettingsContext();
   const gRef = useRef<SVGGElement>(null);
   const propsRef = useRef({ joint, units, position, a, b });
   // the currently-drawn pixel thicknesses, eased toward the target each frame
