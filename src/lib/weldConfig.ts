@@ -1,7 +1,7 @@
 // weldConfig.ts
 // UI-side domain constants and unit helpers shared across the weld components.
 
-import type { Joint, Units } from "../types/weld";
+import type { Joint, Units } from "@/types/weld";
 
 export const MM_MIN = 0.5; // smallest thickness the UI allows
 export const MM_PER_IN = 25.4;

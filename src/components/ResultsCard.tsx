@@ -2,8 +2,8 @@
 // The recommended-settings output: amperage/voltage/wire-feed, the gas/polarity
 // pills, and any advisory flags returned by the engine.
 
-import { fmtThickness } from "../../lib/weldConfig";
-import type { MigResult, Units } from "../../types/weld";
+import { fmtThickness } from "@/lib/weldConfig";
+import type { MigResult, Units } from "@/types/weld";
 
 interface ResultsCardProps {
   result: MigResult;
@@ -13,7 +13,7 @@ interface ResultsCardProps {
 export default function ResultsCard({ result, units }: ResultsCardProps) {
   // when the config isn't recommended the engine returns "—" for the numbers
   return (
-    <div className="out">
+    <div className="out" role="region" aria-label="Recommended starting settings">
       <div className="lead">
         <div className="num amps">
           <div className="k">Amperage</div>

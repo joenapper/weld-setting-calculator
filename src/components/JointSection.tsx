@@ -11,8 +11,8 @@ import {
   OVERHEAD_BUILDERS,
   toPx,
   VERTICAL_BUILDERS,
-} from "../../lib/jointGeometry";
-import type { Joint, Position, Units } from "../../types/weld";
+} from "@/lib/jointGeometry";
+import type { Joint, Material, Position, Units } from "@/types/weld";
 
 const CY = 170; // viewBox centre-Y (480 × 340); the drawing rotates about (CX, CY)
 
@@ -28,6 +28,7 @@ interface JointSectionProps {
   joint: Joint;
   units: Units;
   position: Position;
+  material: Material;
   a: number; // member A thickness, mm
   b: number; // member B thickness, mm
 }
@@ -36,6 +37,7 @@ export default function JointSection({
   joint,
   units,
   position,
+  material,
   a,
   b,
 }: JointSectionProps) {
@@ -49,6 +51,10 @@ export default function JointSection({
 
   // keep the loop reading the latest props without restarting the rAF
   propsRef.current = { joint, units, position, a, b };
+  // likewise keep a live handle on the geometry builders, so hot-reloading
+  // jointGeometry.ts takes effect without the rAF holding a stale copy
+  const buildersRef = useRef({ BUILDERS, VERTICAL_BUILDERS, OVERHEAD_BUILDERS });
+  buildersRef.current = { BUILDERS, VERTICAL_BUILDERS, OVERHEAD_BUILDERS };
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -76,24 +82,49 @@ export default function JointSection({
       if (gRef.current) {
         // bespoke per-position builder if one exists (drawn upright, no transform);
         // otherwise fall back to the flat builder rotated to the position's angle.
+        const builders = buildersRef.current;
         const bespoke =
           p.position === "vertical"
-            ? VERTICAL_BUILDERS[p.joint]
+            ? builders.VERTICAL_BUILDERS[p.joint]
             : p.position === "overhead"
-              ? OVERHEAD_BUILDERS[p.joint]
+              ? builders.OVERHEAD_BUILDERS[p.joint]
               : undefined;
         let html: string;
         let transform = "";
         if (bespoke) {
           html = bespoke(nextA, nextB, p.a, p.b, p.units);
         } else {
-          html = BUILDERS[p.joint](nextA, nextB, p.a, p.b, p.units);
+          html = builders.BUILDERS[p.joint](nextA, nextB, p.a, p.b, p.units);
           const angle = POSITION_ANGLE[p.position];
           if (angle !== 0) {
-            // keep each dimension label upright by counter-rotating it about its anchor
+            // Keep each dimension label upright by counter-rotating it, and flip
+            // its anchor to whichever side now faces away from centre so the text
+            // extends outward (never back into the plate).
             html = html.replace(
-              /<text class="dim" x="(-?[\d.]+)" y="(-?[\d.]+)"/g,
-              `<text class="dim" transform="rotate(${-angle} $1 $2)" x="$1" y="$2"`,
+              /<text class="dim" x="(-?[\d.]+)" y="(-?[\d.]+)" text-anchor="(start|middle|end)" dominant-baseline="central">/g,
+              (_m, xs: string, ys: string, anchor: string) => {
+                const x = parseFloat(xs);
+                const y = parseFloat(ys);
+                // where the label's anchor lands after the group rotation
+                const fx =
+                  angle === 90
+                    ? CX - (y - CY)
+                    : angle === 270
+                      ? CX + (y - CY)
+                      : 2 * CX - x; // 180°
+                // 90°/270° turn a side label into a top/bottom one (and vice
+                // versa); 180° keeps orientation but flips the outward side
+                const side = fx < CX ? "end" : "start";
+                const finalAnchor =
+                  angle === 180
+                    ? anchor === "middle"
+                      ? "middle"
+                      : side
+                    : anchor === "middle"
+                      ? side
+                      : "middle";
+                return `<text class="dim" transform="rotate(${-angle} ${xs} ${ys})" x="${xs}" y="${ys}" text-anchor="${finalAnchor}" dominant-baseline="central">`;
+              },
             );
             transform = `rotate(${angle} ${CX} ${CY})`;
           }
@@ -108,7 +139,7 @@ export default function JointSection({
   }, []);
 
   return (
-    <div className="stage">
+    <div className="stage" data-material={material}>
       <svg
         className="draw"
         viewBox="0 0 480 340"
@@ -117,8 +148,8 @@ export default function JointSection({
       >
         <defs>
           <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--steel-top)" />
-            <stop offset="1" stopColor="var(--steel-bot)" />
+            <stop offset="0" stopColor="var(--plate-top)" />
+            <stop offset="1" stopColor="var(--plate-bot)" />
           </linearGradient>
           <pattern
             id="hatch"

@@ -4,6 +4,84 @@
   font-weight: 400;
 }
 
+/* Design tokens. Dark is the default (:root); light overrides under
+   [data-theme="light"] on <html>. Every colour is a token so the two themes
+   stay in sync — no raw hex in the rules. */
+:root {
+  --page: #0e1115;
+  --bg: #14171b;
+  --panel: #1c2026;
+  --panel-2: #22272e;
+  --panel-hi: #1f242b;
+  --line: #2c333b;
+  --track: #39414a;
+  --thumb: #ffffff;
+  --ink: #e8edf2;
+  --ink-soft: #9aa7b4;
+  --dim: #9fb0bd;
+  --accent: #ff9d36;
+  --accent-soft: #3a2a18;
+  --accent-line: #5a4426;
+  --accent-ink: #f0d2a8;
+  --weld-1: #ffd98a;
+  --weld-2: #ff9d36;
+  --weld-3: #e9641b;
+  --steel-edge: #262b31;
+  --good: #7fd1a0;
+  --warn: #ffcf6b;
+  --warn-bg: #332a14;
+  --warn-line: #5a4426;
+  --warn-ink: #f3dca0;
+  --bad: #ff6b6b;
+  --bad-bg: #3a1618;
+  --bad-line: #7a2b2f;
+  --bad-ink: #f3b4b4;
+  --stage-1: #11151a;
+  --stage-2: #171b20;
+  --grid-line: rgba(255, 255, 255, 0.025);
+  --out-1: #1a1f25;
+  --out-2: #161a1f;
+  --num-bg: #12161a;
+  --radius: 14px;
+}
+
+:root[data-theme="light"] {
+  --page: #e7ebef;
+  --bg: #eef1f4;
+  --panel: #ffffff;
+  --panel-2: #f2f4f7;
+  --panel-hi: #ffffff;
+  --line: #d7dce2;
+  --track: #d0d6dd;
+  --thumb: #ffffff;
+  --ink: #1b2026;
+  --ink-soft: #56616c;
+  --dim: #5a6671;
+  --accent: #a8500e;
+  --accent-soft: #fcefe1;
+  --accent-line: #f0cda3;
+  --accent-ink: #8a4710;
+  --weld-1: #f6b24a;
+  --weld-2: #e9641b;
+  --weld-3: #c4470d;
+  --steel-edge: #7d8893;
+  --good: #1f8a54;
+  --warn: #b9851f;
+  --warn-bg: #fcf3dd;
+  --warn-line: #e8d199;
+  --warn-ink: #7a5a12;
+  --bad: #cf3b3b;
+  --bad-bg: #fdecec;
+  --bad-line: #f0bcbc;
+  --bad-ink: #9a2222;
+  --stage-1: #f7f9fb;
+  --stage-2: #eef2f6;
+  --grid-line: rgba(0, 0, 0, 0.04);
+  --out-1: #fbfcfd;
+  --out-2: #f4f6f9;
+  --num-bg: #f7f9fb;
+}
+
 *,
 *::before,
 *::after {
@@ -14,4 +92,8 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
+  background: var(--page);
+  color: var(--ink);
+  padding: 24px 16px;
 }

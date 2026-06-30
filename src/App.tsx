@@ -1,4 +1,4 @@
-import WeldCalculator from "./components/weld/WeldCalculator";
+import WeldCalculator from "@/components/WeldCalculator";
 
 function App() {
   return <WeldCalculator />;

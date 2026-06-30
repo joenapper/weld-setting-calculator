@@ -133,9 +133,11 @@ function dim(
     s += `<line class="leader" x1="${leaderAt}" y1="${yStart}" x2="${leaderAt}" y2="${yEnd}"/>`;
     s += `<line class="tick" x1="${leaderAt - tick}" y1="${yStart}" x2="${leaderAt + tick}" y2="${yStart}"/>`;
     s += `<line class="tick" x1="${leaderAt - tick}" y1="${yEnd}" x2="${leaderAt + tick}" y2="${yEnd}"/>`;
-    const textX = labelSide < 0 ? leaderAt - 8 : leaderAt + 8,
+    // centred on the span (dominant-baseline) and offset to the outward side, so
+    // it stays centred and clear of the plate under any rotation
+    const textX = leaderAt + labelSide * 10,
       anchor = labelSide < 0 ? "end" : "start";
-    s += `<text class="dim" x="${textX}" y="${r1((yStart + yEnd) / 2 + 4)}" text-anchor="${anchor}">${label}</text>`;
+    s += `<text class="dim" x="${r1(textX)}" y="${r1((yStart + yEnd) / 2)}" text-anchor="${anchor}" dominant-baseline="central">${label}</text>`;
   } else {
     const xStart = start,
       xEnd = start + length;
@@ -144,8 +146,8 @@ function dim(
     s += `<line class="leader" x1="${xStart}" y1="${leaderAt}" x2="${xEnd}" y2="${leaderAt}"/>`;
     s += `<line class="tick" x1="${xStart}" y1="${leaderAt - tick}" x2="${xStart}" y2="${leaderAt + tick}"/>`;
     s += `<line class="tick" x1="${xEnd}" y1="${leaderAt - tick}" x2="${xEnd}" y2="${leaderAt + tick}"/>`;
-    const textY = labelSide < 0 ? leaderAt - 7 : leaderAt + 15;
-    s += `<text class="dim" x="${r1((xStart + xEnd) / 2)}" y="${textY}" text-anchor="middle">${label}</text>`;
+    const textY = leaderAt + labelSide * 16;
+    s += `<text class="dim" x="${r1((xStart + xEnd) / 2)}" y="${r1(textY)}" text-anchor="middle" dominant-baseline="central">${label}</text>`;
   }
   return s;
 }
@@ -163,10 +165,11 @@ function buildFillet(
   units: Units,
 ): string {
   // base = horizontal plate (thickness bPx); upright = vertical member (thickness aPx)
-  const baseTop = 188,
-    baseW = 240,
+  const baseW = 240,
     baseX = CX - baseW / 2,
     uprightH = 150,
+    // centre the upright + base vertically in the 340-tall view
+    baseTop = 245 - bPx / 2,
     uprightTop = baseTop - uprightH,
     uprightX = CX - aPx / 2;
   // clamp each weld leg to the room available either side of the upright
@@ -178,7 +181,7 @@ function buildFillet(
     fillet(uprightX, baseTop, -1, Math.min(leg, availLeft), leg) +
     fillet(uprightX + aPx, baseTop, 1, Math.min(leg, availRight), leg);
   s +=
-    dim("h", uprightTop - 20, uprightX, aPx, uprightTop, -1, dimLabel(realA, units)) +
+    dim("h", uprightTop - 18, uprightX, aPx, uprightTop, -1, dimLabel(realA, units)) +
     dim("v", baseX + baseW + 18, baseTop, bPx, baseX + baseW, 1, dimLabel(realB, units));
   return s;
 }
@@ -193,14 +196,16 @@ function buildButt(
   realB: number,
   units: Units,
 ): string {
-  const plateW = 150,
+  // plates kept compact (±112) so the 90°/180° rotated views leave room for the
+  // thickness labels at the ends without overflowing the box
+  const plateW = 105,
     topY = 170 - Math.max(aPx, bPx) / 2,
     grooveDepth = Math.min(aPx, bPx);
   const crownH = 8, // how far the cap bulges above the surface
     crownOver = 5, // how far the cap overlaps onto each plate
     rootBeadH = 5, // how far the root bead bulges below
-    leftOut = CX - 155,
-    rightOut = CX + 155;
+    leftOut = CX - 112,
+    rightOut = CX + 112;
   let s = "";
   if (Math.min(realA, realB) < 3) {
     // square-edge butt: two plates with a small gap, one bead bridging them
@@ -261,11 +266,11 @@ function buildLap(
 ): string {
   // bottom plate (thickness bPx) spans full width; top plate (thickness aPx)
   // sits on it and is welded at its right-hand edge (topRight)
-  const bottomTop = 170,
-    bottomX = CX - 120,
-    bottomW = 260,
+  const bottomW = 210,
+    bottomX = CX - bottomW / 2,
+    bottomTop = 170 + (aPx - bPx) / 2, // centre the stacked plates vertically
     topX = bottomX,
-    topW = 200,
+    topW = 160,
     topY = bottomTop - aPx,
     topRight = topX + topW;
   const leg = weldLeg(aPx, bPx),
@@ -287,10 +292,11 @@ function buildCorner(
   units: Units,
 ): string {
   // base = bottom leg (thickness bPx); upright = vertical leg (thickness aPx) on its left
-  const baseTop = 190,
-    baseX = CX - 50,
-    baseW = 210,
+  const baseW = 200,
+    baseX = CX - baseW / 2,
     uprightH = 150,
+    // centre the L-shape: base on CX, upright + base centred vertically
+    baseTop = 245 - bPx / 2,
     uprightTop = baseTop - uprightH,
     uprightX = baseX;
   const leg = weldLeg(aPx, bPx),
@@ -298,7 +304,7 @@ function buildCorner(
   let s = plate(baseX, baseTop, baseW, bPx) + plate(uprightX, uprightTop, aPx, uprightH);
   s += fillet(uprightX + aPx, baseTop, 1, Math.min(leg, availRight), leg);
   s +=
-    dim("h", uprightTop - 20, uprightX, aPx, uprightTop, -1, dimLabel(realA, units)) +
+    dim("h", uprightTop - 18, uprightX, aPx, uprightTop, -1, dimLabel(realA, units)) +
     dim("v", baseX + baseW + 18, baseTop, bPx, baseX + baseW, 1, dimLabel(realB, units));
   return s;
 }
@@ -337,7 +343,7 @@ function buildFilletVertical(
     plate(uprightX, yTop, upright, h);
   s += weldColumn(weld1X, yTop, weldW, h) + weldColumn(weld2X, yTop, weldW, h);
   // upright (A): real dimension across its (live) width, below the drawing
-  s += dim("h", yBot + 20, uprightX, upright, yBot, 1, dimLabel(realA, units));
+  s += dim("h", yBot + 18, uprightX, upright, yBot, 1, dimLabel(realA, units));
   // base (B): numeric callout only (fixed shape), above a base face
   const callout = (cx: number, label: string) =>
     `<line class="ext" x1="${r1(cx)}" y1="${yTop}" x2="${r1(cx)}" y2="${yTop - 14}"/>` +
@@ -355,11 +361,12 @@ function buildFilletOverhead(
   realB: number,
   units: Units,
 ): string {
-  const baseBot = 152, // bottom edge of the (top) base plate
-    baseW = 240,
+  const baseW = 240,
     baseX = CX - baseW / 2,
-    baseTopY = baseBot - bPx,
     uprightH = 150,
+    // centre the base + hanging upright vertically
+    baseBot = 95 + bPx / 2,
+    baseTopY = baseBot - bPx,
     uprightX = CX - aPx / 2;
   const leg = weldLeg(aPx, bPx),
     availL = uprightX - baseX,
@@ -371,7 +378,7 @@ function buildFilletOverhead(
     fillet(uprightX + aPx, baseBot, 1, Math.min(leg, availR), leg, 1);
   // thickness labels: A below the hanging upright, B to the right of the base
   s +=
-    dim("h", baseBot + uprightH + 20, uprightX, aPx, baseBot + uprightH, 1, dimLabel(realA, units)) +
+    dim("h", baseBot + uprightH + 18, uprightX, aPx, baseBot + uprightH, 1, dimLabel(realA, units)) +
     dim("v", baseX + baseW + 18, baseTopY, bPx, baseX + baseW, 1, dimLabel(realB, units));
   return s;
 }

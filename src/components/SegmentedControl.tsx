@@ -13,7 +13,10 @@ export interface SegmentOption<T extends string> {
 interface SegmentedControlProps<T extends string> {
   options: SegmentOption<T>[];
   value: T;
-  onChange: (val: T) => void;
+  // NoInfer: T is inferred only from `options`/`value`, not from the handler —
+  // passing a setState (Dispatch<SetStateAction<T>>) here would otherwise poison
+  // inference and collapse T to `string`.
+  onChange: (val: NoInfer<T>) => void;
   ariaLabel: string;
 }
 

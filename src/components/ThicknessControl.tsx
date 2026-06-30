@@ -4,8 +4,8 @@
 // active display units.
 
 import type { ChangeEvent, CSSProperties } from "react";
-import { MM_MIN, inToMm, mmToIn, r1 } from "../../lib/weldConfig";
-import type { Units } from "../../types/weld";
+import { MM_MIN, inToMm, mmToIn, r1 } from "@/lib/weldConfig";
+import type { Units } from "@/types/weld";
 
 interface ThicknessControlProps {
   name: string;
