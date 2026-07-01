@@ -1,14 +1,18 @@
 // WeldInputs.tsx
 // The weld-parameter input panel: reads the shared settings from context and
-// renders the material, joint, position, wire and thickness controls.
+// renders the material, joint, position, consumable and thickness controls. The
+// consumable control(s) depend on the selected process — wire for MIG, filler +
+// tungsten for TIG.
 
 import { JOINT_MAX, ROLES } from "@/lib/weldConfig";
 import { useWeldSettingsContext } from "@/context/WeldSettingsContext";
 import SegmentedControl from "./SegmentedControl";
 import {
+  FILLER_OPTS,
   JOINT_OPTS,
   MATERIAL_OPTS,
   POSITION_OPTS,
+  TUNGSTEN_OPTS,
   UNIT_OPTS,
   WIRE_OPTS,
 } from "./segmentOptions";
@@ -16,6 +20,7 @@ import ThicknessControl from "./ThicknessControl";
 
 export default function WeldInputs() {
   const {
+    process,
     units,
     setUnits,
     material,
@@ -26,6 +31,10 @@ export default function WeldInputs() {
     setPosition,
     wire,
     setWire,
+    filler,
+    setFiller,
+    tungsten,
+    setTungsten,
     a,
     setA,
     b,
@@ -58,10 +67,23 @@ export default function WeldInputs() {
         <SegmentedControl options={POSITION_OPTS} value={position} onChange={setPosition} ariaLabel="Welding position" />
       </div>
 
-      <div className="field">
-        <span className="field-label">Wire diameter</span>
-        <SegmentedControl options={WIRE_OPTS} value={wire} onChange={setWire} ariaLabel="Wire diameter" />
-      </div>
+      {process === "tig" ? (
+        <>
+          <div className="field">
+            <span className="field-label">Filler rod</span>
+            <SegmentedControl options={FILLER_OPTS} value={filler} onChange={setFiller} ariaLabel="Filler rod diameter" />
+          </div>
+          <div className="field">
+            <span className="field-label">Tungsten</span>
+            <SegmentedControl options={TUNGSTEN_OPTS} value={tungsten} onChange={setTungsten} ariaLabel="Tungsten diameter" />
+          </div>
+        </>
+      ) : (
+        <div className="field">
+          <span className="field-label">Wire diameter</span>
+          <SegmentedControl options={WIRE_OPTS} value={wire} onChange={setWire} ariaLabel="Wire diameter" />
+        </div>
+      )}
 
       <div className="field">
         <span className="field-label">Material thickness</span>
@@ -69,8 +91,8 @@ export default function WeldInputs() {
           <div className="cap-note">
             <span className="dot" />
             <span>
-              Butt joints are capped at <b>6&nbsp;mm</b> — the single-pass MIG range. Thicker plate needs
-              multiple passes.
+              Butt joints are capped at <b>6&nbsp;mm</b> — the single-pass range. Thicker plate needs multiple
+              passes.
             </span>
           </div>
         )}

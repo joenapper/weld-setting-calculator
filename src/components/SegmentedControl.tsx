@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 export interface SegmentOption<T extends string> {
   val: T;
   label: string;
+  unit?: string; // small unit annotation shown tight after the label (e.g. "mm")
   icon?: ReactNode;
   sub?: string;
 }
@@ -36,7 +37,14 @@ export default function SegmentedControl<T extends string>({
           onClick={() => onChange(o.val)}
         >
           {o.icon}
-          {o.label}
+          {o.unit ? (
+            <span className="lbl">
+              {o.label}
+              <span className="unit">{o.unit}</span>
+            </span>
+          ) : (
+            o.label
+          )}
           {o.sub && <span className="sub">{o.sub}</span>}
         </button>
       ))}

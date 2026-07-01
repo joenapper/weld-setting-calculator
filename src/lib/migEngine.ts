@@ -97,6 +97,7 @@ export const MIG = {
         ? `Use ${okWire} mm wire or heavier, or switch to a higher-output process (FCAW, stick, submerged-arc).`
         : `It's beyond practical MIG range — use FCAW, stick, or submerged-arc.`;
       return {
+        process: "mig",
         amps: "—",
         volts: "—",
         wfs: "—",
@@ -207,6 +208,7 @@ export const MIG = {
       );
 
     return {
+      process: "mig",
       amps: `${ampsLo}–${ampsHi}`,
       volts: `${vLo}–${vHi}`,
       wfs: `${wLo}–${wHi}`,

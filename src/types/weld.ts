@@ -5,14 +5,29 @@
 export type Material = "steel" | "stainless" | "aluminium";
 export type Joint = "fillet" | "butt" | "lap" | "corner";
 export type Position = "flat" | "horizontal" | "vertical" | "overhead";
-export type Wire = "0.6" | "0.8" | "0.9" | "1.0" | "1.2";
 export type Units = "mm" | "in";
+
+export type Process = "mig" | "tig" | "stick";
+
+export type Wire = "0.6" | "0.8" | "0.9" | "1.0" | "1.2"; // MIG wire ⌀ (mm)
+export type Filler = "1.6" | "2.4" | "3.2"; // TIG filler rod ⌀ (mm)
+export type Tungsten = "1.6" | "2.4"; // TIG tungsten electrode ⌀ (mm)
 
 export interface MigInput {
   material: Material;
   joint: Joint;
   position: Position;
   wire: Wire;
+  thicknessA: number; // member A thickness, mm
+  thicknessB: number; // member B thickness, mm
+}
+
+export interface TigInput {
+  material: Material;
+  joint: Joint;
+  position: Position;
+  filler: Filler;
+  tungsten: Tungsten;
   thicknessA: number; // member A thickness, mm
   thicknessB: number; // member B thickness, mm
 }
@@ -25,6 +40,7 @@ export interface Flag {
 }
 
 export interface MigResult {
+  process: "mig"; // discriminant for WeldResult
   amps: string; // display range, e.g. "105–125" (or "—" when not recommended)
   volts: string;
   wfs: string; // wire feed speed range, IPM
@@ -34,3 +50,17 @@ export interface MigResult {
   flags: Flag[];
   recommended: boolean; // false when the config is unsafe — UI withholds the numbers
 }
+
+export interface TigResult {
+  process: "tig"; // discriminant for WeldResult
+  amps: string; // display range, A (or "—" when not recommended)
+  polarity: string; // AC / DC + electrode polarity
+  tungsten: string; // recommended tungsten ⌀ for the amperage
+  gas: string;
+  gov: number; // governing (thinner) thickness, mm
+  flags: Flag[];
+  recommended: boolean;
+}
+
+// Either engine's output — discriminated by `process` so the UI can narrow.
+export type WeldResult = MigResult | TigResult;

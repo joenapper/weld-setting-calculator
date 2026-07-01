@@ -83,6 +83,7 @@
 }
 
 .weld-tool .proc .chip {
+  appearance: none;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -95,6 +96,8 @@
   border: 1px solid var(--line);
   color: var(--ink-soft);
   background: var(--panel-2);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
 }
 
 .weld-tool .proc .chip svg {
@@ -107,6 +110,19 @@
   background: var(--accent-soft);
   color: var(--accent);
   border-color: var(--accent-line);
+}
+
+.weld-tool .proc .chip:not(.on):not(:disabled):hover {
+  color: var(--ink);
+}
+
+.weld-tool .proc .chip:disabled {
+  cursor: default;
+}
+
+.weld-tool .proc .chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .weld-tool .proc .chip.soon::after {
@@ -193,6 +209,25 @@
 }
 
 .weld-tool .seg button[aria-pressed="true"] .sub {
+  color: var(--accent);
+}
+
+/* number + small metric unit (e.g. "1.6 mm") kept tight together */
+.weld-tool .seg .lbl {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.weld-tool .seg .unit {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-family: "Space Mono", monospace;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.weld-tool .seg button[aria-pressed="true"] .unit {
   color: var(--accent);
 }
 
