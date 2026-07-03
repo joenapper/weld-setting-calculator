@@ -66,8 +66,8 @@ export default function ResultsCard() {
       </div>
 
       <div className="flags">
-        {result.flags.map((flag, i) => (
-          <div className={`flag ${flag.severity}`} key={i}>
+        {result.flags.map((flag) => (
+          <div className={`flag ${flag.severity}`} key={`${flag.severity}:${flag.text}`}>
             <span className="i" />
             <span>{flag.text}</span>
           </div>

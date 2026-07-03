@@ -33,7 +33,10 @@ export default function ThicknessControl({
     step: isMM ? 0.5 : 0.01,
   };
   const onInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const raw = parseFloat(e.target.value) || 0;
+    const raw = parseFloat(e.target.value);
+    // ignore empty/partial input ("", "-", ".") so clearing the box to retype
+    // doesn't snap the value to the MM_MIN floor mid-edit
+    if (!Number.isFinite(raw)) return;
     const mm = isMM ? raw : inToMm(raw); // normalise back to mm before lifting state up
     onChangeMM(Math.max(MM_MIN, Math.min(maxMM, mm)));
   };

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Claude tooling: version skills/agents, ignore the local working memory
+.claude/agent-memory/

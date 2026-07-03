@@ -34,6 +34,8 @@ export default function JointSection() {
     a: null,
     b: null,
   });
+  // signature of the last SVG written, so redundant writes are skipped at idle
+  const writtenRef = useRef("");
 
   // keep the loop reading the latest props without restarting the rAF
   propsRef.current = { joint, units, position, a, b };
@@ -43,7 +45,7 @@ export default function JointSection() {
   buildersRef.current = { BUILDERS, VERTICAL_BUILDERS, OVERHEAD_BUILDERS };
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+    const motion = window.matchMedia("(prefers-reduced-motion:reduce)");
     let raf: number;
     const tick = () => {
       const p = propsRef.current;
@@ -53,8 +55,10 @@ export default function JointSection() {
       const prevB = drawn.current.b;
       let nextA: number;
       let nextB: number;
-      // first frame (prev === null) or reduced motion: snap straight to target
-      if (prevA === null || prevB === null || reduce) {
+      // first frame (prev === null) or reduced motion: snap straight to target.
+      // motion.matches is read each frame so a mid-session preference change
+      // takes effect without remounting.
+      if (prevA === null || prevB === null || motion.matches) {
         nextA = targetA;
         nextB = targetB;
       } else {
@@ -65,7 +69,14 @@ export default function JointSection() {
         if (Math.abs(targetB - nextB) < 0.2) nextB = targetB;
       }
       drawn.current = { a: nextA, b: nextB };
-      if (gRef.current) {
+
+      // Everything the SVG string depends on (material is a CSS var on the wrapper,
+      // not part of the markup). Once the tween has settled and no input has moved
+      // this stops changing, so we skip the rebuild + innerHTML write — the loop
+      // stays alive to catch the next change but does no work at idle.
+      const sig = `${nextA}|${nextB}|${p.a}|${p.b}|${p.joint}|${p.position}|${p.units}`;
+      if (sig !== writtenRef.current && gRef.current) {
+        writtenRef.current = sig;
         // bespoke per-position builder if one exists (drawn upright, no transform);
         // otherwise fall back to the flat builder rotated to the position's angle.
         const builders = buildersRef.current;
@@ -92,14 +103,9 @@ export default function JointSection() {
                 const x = parseFloat(xs);
                 const y = parseFloat(ys);
                 // where the label's anchor lands after the group rotation
-                const fx =
-                  angle === 90
-                    ? CX - (y - CY)
-                    : angle === 270
-                      ? CX + (y - CY)
-                      : 2 * CX - x; // 180°
-                // 90°/270° turn a side label into a top/bottom one (and vice
-                // versa); 180° keeps orientation but flips the outward side
+                const fx = angle === 90 ? CX - (y - CY) : 2 * CX - x; // 90° vs 180°
+                // 90° turns a side label into a top/bottom one (and vice versa);
+                // 180° keeps orientation but flips the outward side
                 const side = fx < CX ? "end" : "start";
                 const finalAnchor =
                   angle === 180
