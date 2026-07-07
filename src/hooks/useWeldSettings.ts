@@ -7,8 +7,10 @@
 import { useState } from "react";
 import { MIG } from "@/lib/migEngine";
 import { TIG } from "@/lib/tigEngine";
+import { STICK } from "@/lib/stickEngine";
 import { JOINT_MAX, MM_MIN } from "@/lib/weldConfig";
 import type {
+  Electrode,
   Filler,
   Joint,
   Material,
@@ -16,6 +18,7 @@ import type {
   Process,
   Tungsten,
   Units,
+  WeldResult,
   Wire,
 } from "@/types/weld";
 
@@ -39,6 +42,9 @@ export function useWeldSettings() {
   const [filler, setFiller] = useState<Filler>("2.4");
   const [tungsten, setTungsten] = useState<Tungsten>("2.4");
 
+  // --- Stick consumable ---
+  const [electrode, setElectrode] = useState<Electrode>("3.2");
+
   // switching joint re-clamps both members into the new allowed range
   const onJoint = (j: Joint) => {
     const hi = JOINT_MAX[j];
@@ -47,12 +53,20 @@ export function useWeldSettings() {
     setJoint(j);
   };
 
-  // dispatch to the engine for the selected process (Stick falls back to MIG
-  // until its engine exists; the selector keeps it disabled regardless)
-  const result =
-    process === "tig"
-      ? TIG.compute({ material, joint, position, filler, tungsten, thicknessA: a, thicknessB: b })
-      : MIG.compute({ material, joint, position, wire, thicknessA: a, thicknessB: b });
+  // dispatch to the engine for the selected process (each takes the shared
+  // inputs plus its own consumable(s))
+  const resolveResult = (): WeldResult => {
+    const shared = { material, joint, position, thicknessA: a, thicknessB: b };
+    switch (process) {
+      case "tig":
+        return TIG.compute({ ...shared, filler, tungsten });
+      case "stick":
+        return STICK.compute({ ...shared, electrode });
+      default:
+        return MIG.compute({ ...shared, wire });
+    }
+  };
+  const result = resolveResult();
 
   return {
     // shared
@@ -78,6 +92,9 @@ export function useWeldSettings() {
     setFiller,
     tungsten,
     setTungsten,
+    // Stick
+    electrode,
+    setElectrode,
     // engine output for the active process
     result,
   };

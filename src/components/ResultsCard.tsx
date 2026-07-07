@@ -1,7 +1,9 @@
 // ResultsCard.tsx
 // The recommended-settings output. Reads the engine result from context and
-// renders the fields for the active process — MIG shows voltage + wire-feed,
-// TIG shows tungsten + AC/DC polarity. `result.process` discriminates the union.
+// renders the fields for the active process — MIG shows voltage + wire-feed + gas
+// + transfer, TIG shows tungsten + gas, Stick shows the electrode; all show
+// amperage, polarity and governing thickness. `result.process` discriminates the
+// union so each block narrows to the right result type.
 
 import { fmtThickness } from "@/lib/weldConfig";
 import { useWeldSettingsContext } from "@/context/WeldSettingsContext";
@@ -19,7 +21,7 @@ export default function ResultsCard() {
           </div>
         </div>
 
-        {result.process === "mig" ? (
+        {result.process === "mig" && (
           <>
             <div className="num">
               <div className="k">Voltage</div>
@@ -34,7 +36,9 @@ export default function ResultsCard() {
               </div>
             </div>
           </>
-        ) : (
+        )}
+
+        {result.process === "tig" && (
           <div className="num">
             <div className="k">Tungsten</div>
             <div className="v">
@@ -42,13 +46,24 @@ export default function ResultsCard() {
             </div>
           </div>
         )}
+
+        {result.process === "stick" && (
+          <div className="num">
+            <div className="k">Electrode</div>
+            <div className="v">
+              {result.electrode} {result.recommended && <small>mm</small>}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="chips">
-        <div className="pill">
-          <b>Gas</b>
-          {result.gas}
-        </div>
+        {result.process !== "stick" && (
+          <div className="pill">
+            <b>Gas</b>
+            {result.gas}
+          </div>
+        )}
         <div className="pill">
           <b>Polarity</b>
           {result.process === "mig" ? "DCEP · electrode +" : result.polarity}

@@ -1,7 +1,7 @@
 // WeldHeader.tsx
 // App header: the title, the process selector and the theme toggle. The selected
-// process comes from the shared settings context; MIG and TIG are wired up,
-// Stick is disabled until its engine exists.
+// process comes from the shared settings context; MIG, TIG and Stick are all
+// wired up.
 
 import type { ReactNode } from "react";
 import { MigTorch, StickTorch, TigTorch } from "@/icons/TorchIcons";
@@ -9,10 +9,10 @@ import { useWeldSettingsContext } from "@/context/WeldSettingsContext";
 import type { Process } from "@/types/weld";
 import ThemeToggle from "./ThemeToggle";
 
-const PROCESSES: { val: Process; name: string; icon: ReactNode; soon: boolean }[] = [
-  { val: "mig", name: "MIG", icon: <MigTorch />, soon: false },
-  { val: "tig", name: "TIG", icon: <TigTorch />, soon: false },
-  { val: "stick", name: "Stick", icon: <StickTorch />, soon: true },
+const PROCESSES: { val: Process; name: string; icon: ReactNode }[] = [
+  { val: "mig", name: "MIG", icon: <MigTorch /> },
+  { val: "tig", name: "TIG", icon: <TigTorch /> },
+  { val: "stick", name: "Stick", icon: <StickTorch /> },
 ];
 
 export default function WeldHeader() {
@@ -26,9 +26,8 @@ export default function WeldHeader() {
             <button
               key={p.val}
               type="button"
-              className={`chip${p.soon ? " soon" : ""}${process === p.val ? " on" : ""}`}
+              className={`chip${process === p.val ? " on" : ""}`}
               aria-pressed={process === p.val}
-              disabled={p.soon}
               onClick={() => setProcess(p.val)}
             >
               {p.icon}

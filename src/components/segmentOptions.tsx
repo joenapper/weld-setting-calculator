@@ -3,6 +3,7 @@
 
 import type { SegmentOption } from "./SegmentedControl";
 import type {
+  Electrode,
   Filler,
   Joint,
   Material,
@@ -58,6 +59,14 @@ export const FILLER_OPTS: SegmentOption<Filler>[] = [
 export const TUNGSTEN_OPTS: SegmentOption<Tungsten>[] = [
   { val: "1.6", label: "1.6", unit: "mm", sub: "1/16″" },
   { val: "2.4", label: "2.4", unit: "mm", sub: "3/32″" },
+];
+
+// Stick consumable — label is the metric ⌀, unit "mm", sub the imperial equivalent.
+export const ELECTRODE_OPTS: SegmentOption<Electrode>[] = [
+  { val: "2.0", label: "2.0", unit: "mm", sub: "5/64″" },
+  { val: "2.5", label: "2.5", unit: "mm", sub: "3/32″" },
+  { val: "3.2", label: "3.2", unit: "mm", sub: "1/8″" },
+  { val: "4.0", label: "4.0", unit: "mm", sub: "5/32″" },
 ];
 
 export const UNIT_OPTS: SegmentOption<Units>[] = [

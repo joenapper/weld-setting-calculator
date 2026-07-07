@@ -2,12 +2,13 @@
 // The weld-parameter input panel: reads the shared settings from context and
 // renders the material, joint, position, consumable and thickness controls. The
 // consumable control(s) depend on the selected process — wire for MIG, filler +
-// tungsten for TIG.
+// tungsten for TIG, electrode for Stick.
 
 import { JOINT_MAX, ROLES } from "@/lib/weldConfig";
 import { useWeldSettingsContext } from "@/context/WeldSettingsContext";
 import SegmentedControl from "./SegmentedControl";
 import {
+  ELECTRODE_OPTS,
   FILLER_OPTS,
   JOINT_OPTS,
   MATERIAL_OPTS,
@@ -35,6 +36,8 @@ export default function WeldInputs() {
     setFiller,
     tungsten,
     setTungsten,
+    electrode,
+    setElectrode,
     a,
     setA,
     b,
@@ -78,6 +81,11 @@ export default function WeldInputs() {
             <SegmentedControl options={TUNGSTEN_OPTS} value={tungsten} onChange={setTungsten} ariaLabel="Tungsten diameter" />
           </div>
         </>
+      ) : process === "stick" ? (
+        <div className="field">
+          <span className="field-label">Electrode</span>
+          <SegmentedControl options={ELECTRODE_OPTS} value={electrode} onChange={setElectrode} ariaLabel="Electrode diameter" />
+        </div>
       ) : (
         <div className="field">
           <span className="field-label">Wire diameter</span>

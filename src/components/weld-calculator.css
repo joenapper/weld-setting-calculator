@@ -125,11 +125,6 @@
   outline-offset: 2px;
 }
 
-.weld-tool .proc .chip.soon::after {
-  content: " · soon";
-  font-size: 11px;
-}
-
 .weld-tool .body {
   padding: 18px 22px 6px;
 }
