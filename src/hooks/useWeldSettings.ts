@@ -40,7 +40,9 @@ export function useWeldSettings() {
 
   // --- TIG consumables ---
   const [filler, setFiller] = useState<Filler>("2.4");
-  const [tungsten, setTungsten] = useState<Tungsten>("2.4");
+  // 1.6 mm suits the default config (steel/fillet/flat/3 mm ≈ 120 A) so the
+  // initial TIG state has no advisory
+  const [tungsten, setTungsten] = useState<Tungsten>("1.6");
 
   // --- Stick consumable ---
   const [electrode, setElectrode] = useState<Electrode>("3.2");
