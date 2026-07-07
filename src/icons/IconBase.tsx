@@ -7,7 +7,7 @@ import type { IconProps } from "@/types/icon";
 
 export function IconBase({ children, ...props }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" {...props}>
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <g className="ic">{children}</g>
     </svg>
   );

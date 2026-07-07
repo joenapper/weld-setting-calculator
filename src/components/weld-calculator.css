@@ -112,12 +112,8 @@
   border-color: var(--accent-line);
 }
 
-.weld-tool .proc .chip:not(.on):not(:disabled):hover {
+.weld-tool .proc .chip:not(.on):hover {
   color: var(--ink);
-}
-
-.weld-tool .proc .chip:disabled {
-  cursor: default;
 }
 
 .weld-tool .proc .chip:focus-visible {

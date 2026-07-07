@@ -8,14 +8,14 @@ import { useEffect, useRef } from "react";
 import {
   BUILDERS,
   CX,
+  CY,
   OVERHEAD_BUILDERS,
+  rotateLabels,
   toPx,
   VERTICAL_BUILDERS,
 } from "@/lib/jointGeometry";
 import { useWeldSettingsContext } from "@/context/WeldSettingsContext";
 import type { Position } from "@/types/weld";
-
-const CY = 170; // viewBox centre-Y (480 × 340); the drawing rotates about (CX, CY)
 
 // how the cross-section is oriented for each welding position
 const POSITION_ANGLE: Record<Position, number> = {
@@ -91,35 +91,12 @@ export default function JointSection() {
         if (bespoke) {
           html = bespoke(nextA, nextB, p.a, p.b, p.units);
         } else {
-          html = builders.BUILDERS[p.joint](nextA, nextB, p.a, p.b, p.units);
           const angle = POSITION_ANGLE[p.position];
-          if (angle !== 0) {
-            // Keep each dimension label upright by counter-rotating it, and flip
-            // its anchor to whichever side now faces away from centre so the text
-            // extends outward (never back into the plate).
-            html = html.replace(
-              /<text class="dim" x="(-?[\d.]+)" y="(-?[\d.]+)" text-anchor="(start|middle|end)" dominant-baseline="central">/g,
-              (_m, xs: string, ys: string, anchor: string) => {
-                const x = parseFloat(xs);
-                const y = parseFloat(ys);
-                // where the label's anchor lands after the group rotation
-                const fx = angle === 90 ? CX - (y - CY) : 2 * CX - x; // 90° vs 180°
-                // 90° turns a side label into a top/bottom one (and vice versa);
-                // 180° keeps orientation but flips the outward side
-                const side = fx < CX ? "end" : "start";
-                const finalAnchor =
-                  angle === 180
-                    ? anchor === "middle"
-                      ? "middle"
-                      : side
-                    : anchor === "middle"
-                      ? side
-                      : "middle";
-                return `<text class="dim" transform="rotate(${-angle} ${xs} ${ys})" x="${xs}" y="${ys}" text-anchor="${finalAnchor}" dominant-baseline="central">`;
-              },
-            );
-            transform = `rotate(${angle} ${CX} ${CY})`;
-          }
+          html = rotateLabels(
+            builders.BUILDERS[p.joint](nextA, nextB, p.a, p.b, p.units),
+            angle,
+          );
+          if (angle !== 0) transform = `rotate(${angle} ${CX} ${CY})`;
         }
         gRef.current.setAttribute("transform", transform);
         gRef.current.innerHTML = html;

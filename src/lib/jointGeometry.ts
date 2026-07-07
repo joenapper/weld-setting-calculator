@@ -17,6 +17,7 @@ export const PX_PER_MM = 5; // on-screen pixels per mm of plate thickness
 export const MIN_PX = 7; // floor so a very thin plate is still visible
 export const MAX_PX = 120; // ceiling so a thick plate can't overflow the stage
 export const CX = 240; // x of the centre line (half of the 480-wide viewBox)
+export const CY = 170; // y of the centre line; non-flat views rotate about (CX, CY)
 
 // Convert a real mm thickness to a clamped on-screen pixel thickness.
 export const toPx = (mm: number): number =>
@@ -381,6 +382,36 @@ function buildFilletOverhead(
     dim("h", baseBot + uprightH + 18, uprightX, aPx, baseBot + uprightH, 1, dimLabel(realA, units)) +
     dim("v", baseX + baseW + 18, baseTopY, bPx, baseX + baseW, 1, dimLabel(realB, units));
   return s;
+}
+
+// Re-anchor the dimension labels of flat-position markup for a rotated view.
+// When the whole drawing is rotated by `angle` (90° or 180°) about (CX, CY),
+// each dimension label is counter-rotated to stay upright and its anchor is
+// flipped to whichever side now faces away from centre, so the text always
+// extends outward (never back into the plate). `angle === 0` is a no-op.
+export function rotateLabels(html: string, angle: number): string {
+  if (angle === 0) return html;
+  return html.replace(
+    /<text class="dim" x="(-?[\d.]+)" y="(-?[\d.]+)" text-anchor="(start|middle|end)" dominant-baseline="central">/g,
+    (_m, xs: string, ys: string, anchor: string) => {
+      const x = parseFloat(xs);
+      const y = parseFloat(ys);
+      // where the label's anchor lands after the group rotation
+      const fx = angle === 90 ? CX - (y - CY) : 2 * CX - x; // 90° vs 180°
+      // 90° turns a side label into a top/bottom one (and vice versa);
+      // 180° keeps orientation but flips the outward side
+      const side = fx < CX ? "end" : "start";
+      const finalAnchor =
+        angle === 180
+          ? anchor === "middle"
+            ? "middle"
+            : side
+          : anchor === "middle"
+            ? side
+            : "middle";
+      return `<text class="dim" transform="rotate(${-angle} ${xs} ${ys})" x="${xs}" y="${ys}" text-anchor="${finalAnchor}" dominant-baseline="central">`;
+    },
+  );
 }
 
 // A joint cross-section builder: takes pixel thicknesses (drawn) + real mm
